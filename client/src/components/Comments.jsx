@@ -17,7 +17,7 @@ function Comments({ postId }) {
   const { getToken } = useAuth();
   const { user } = useUser();
 
-  const mutation = useMutation({
+  const addCommentMutation = useMutation({
     mutationFn: async (newComment) => {
       toast("Your Comment is being posted", {
         autoClose: 2000,
@@ -38,7 +38,7 @@ function Comments({ postId }) {
     onSuccess: (res) => {
       toast.success("Your Comment Has been created");
 
-      queryClient.invalidateQueries(["fetchComment", postId]);
+      queryClient.invalidateQueries(["fetchComment"]);
     },
 
     onError: (res) => {
@@ -52,12 +52,12 @@ function Comments({ postId }) {
       return "can't be emptyu";
     }
     const commentBody = { desc: inputRef.current.value };
-    mutation.mutate(commentBody);
+    addCommentMutation.mutate(commentBody);
     inputRef.current.value = "";
   };
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["fetchComment", postId],
+    queryKey: ["fetchComment"],
     queryFn: () => fetchComment(postId),
   });
 
@@ -77,10 +77,10 @@ function Comments({ postId }) {
         <button
           onClick={handleSendComment}
           className={`bg-blue-800 px-4 py-3 ${
-            mutation.isPending ? "disabled" : ""
+            addCommentMutation.isPending ? "disabled" : ""
           } text-white font-medium rounded-xl `}
         >
-          {mutation.isPending ? "Sending...." : "Send"}
+          {addCommentMutation.isPending ? "Sending...." : "Send"}
         </button>
       </div>
       {data?.map((comment) => {

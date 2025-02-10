@@ -1,12 +1,37 @@
 import React from "react";
 import Image from "./Image";
 import { format } from "timeago.js";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 function SingleComment({ commentData, userId }) {
-  console.log(commentData);
-  console.log(userId);
-  console.log(userId === commentData.user._id);
+  const queryClient = useQueryClient();
+  const { getToken } = useAuth();
+  const deleteCommentMuation = useMutation({
+    mutationFn: async (commentId) => {
+      const token = await getToken({ forceRefresh: true });
+
+      return axios.delete(
+        `${import.meta.env.VITE_API_URL}/comment/${commentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    },
+    onSuccess: (res) => {
+      toast.success("Your Comment Has been deleted");
+      queryClient.invalidateQueries(["fetchComment"]);
+    },
+
+    onError: (res) => {
+      console.log(res);
+      toast.error("Comment failed to be deleted");
+    },
+  });
   return (
     <div className="p-4 bg-slate-50 rounded-xl mb-8">
       <div className="flex items-center gap-4" w="40">
@@ -25,8 +50,11 @@ function SingleComment({ commentData, userId }) {
         <span className="text-sm text-gray-500">
           {format(commentData.createdAt)}
         </span>
-        {userId === commentData.user._id ? (
-          <div className="flex ml-auto text-[14px] cursor-pointer text-white font-bold justify-center rounded-full px-2 py-2 items-center bg-red-300">
+        {userId === commentData.user.clerkId ? (
+          <div
+            className="flex ml-auto text-[14px] cursor-pointer text-white font-bold justify-center rounded-full px-2 py-2 items-center bg-red-500"
+            onClick={() => deleteCommentMuation.mutate(commentData._id)}
+          >
             <svg
               className="w-6 h-6 text-gray-800 dark:text-white"
               aria-hidden="true"
