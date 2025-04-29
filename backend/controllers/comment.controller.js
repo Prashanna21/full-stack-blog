@@ -21,12 +21,10 @@ export const getComments = async (req, res) => {
     .find({ post: postId })
     .populate("user", "username image clerkId")
     .sort({ createdAt: -1 });
-  console.log(comments);
   res.status(200).send(comments);
 };
 
 export const deleteComment = async (req, res) => {
-  console.log(req);
   const commentId = req.params.id;
   const clerkUserId = req.auth.userId;
   if (!clerkUserId) {
@@ -38,7 +36,6 @@ export const deleteComment = async (req, res) => {
     _id: commentId,
     user: user._id,
   });
-  console.log(deleteComment);
   if (!deleteComment) {
     return res.status(500).json("Comment failed ");
   }

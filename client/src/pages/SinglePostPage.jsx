@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { format } from "timeago.js";
+import parse from "html-react-parser";
 
 const fetchPost = async (slug) => {
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/posts/${slug}`);
@@ -56,7 +57,7 @@ function SinglePostPage() {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Text */}
         <div className="lg:text-lg flex-1 flex flex-col gap-6 text-justify">
-          {data.content}
+          {data ? parse(data.content) : ""}
 
           <Comments postId={data._id} />
         </div>
@@ -91,7 +92,7 @@ function SinglePostPage() {
             </Link>
           </div>
 
-          <PostMenuActions />
+          <PostMenuActions post={data} />
 
           <h1 className="mt-8 mb-4 text-sm font-medium">Categories</h1>
           <div className="flex flex-col gap-2 text-sm">

@@ -12,6 +12,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.65.1",
     "axios": "^1.7.9",
+    "html-react-parser": "^5.2.3",
     "imagekitio-react": "^4.2.0",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",

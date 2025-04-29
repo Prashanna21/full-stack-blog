@@ -35,9 +35,9 @@ function SingleComment({ commentData, userId }) {
   return (
     <div className="p-4 bg-slate-50 rounded-xl mb-8">
       <div className="flex items-center gap-4" w="40">
-        {commentData.user.image ? (
+        {commentData.user?.image ? (
           <img
-            src={commentData.user.image}
+            src={commentData.user?.image}
             className="w-10 h-10 rounded-full object-cover"
           />
         ) : (
@@ -46,11 +46,11 @@ function SingleComment({ commentData, userId }) {
             className="w-10 h-10 rounded-full object-cover"
           />
         )}
-        <span className="font-medium">{commentData.user.username}</span>
+        <span className="font-medium">{commentData.user?.username}</span>
         <span className="text-sm text-gray-500">
           {format(commentData.createdAt)}
         </span>
-        {userId === commentData.user.clerkId ? (
+        {userId === commentData.user?.clerkId ? (
           <div
             className="flex ml-auto text-[14px] cursor-pointer text-white font-bold justify-center rounded-full px-2 py-2 items-center bg-red-500"
             onClick={() => deleteCommentMuation.mutate(commentData._id)}

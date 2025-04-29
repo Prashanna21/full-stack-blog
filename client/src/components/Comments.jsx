@@ -23,8 +23,6 @@ function Comments({ postId }) {
         autoClose: 2000,
       });
       const token = await getToken({ forceRefresh: true });
-      console.log(token);
-
       return axios.post(
         `${import.meta.env.VITE_API_URL}/comment/${postId}`,
         newComment,
@@ -35,10 +33,10 @@ function Comments({ postId }) {
         }
       );
     },
-    onSuccess: (res) => {
+    onSettled: (res) => {
       toast.success("Your Comment Has been created");
-
-      queryClient.invalidateQueries(["fetchComment"]);
+      console.log(res);
+      queryClient.invalidateQueries(["fetchComment", postId]);
     },
 
     onError: (res) => {
@@ -49,7 +47,7 @@ function Comments({ postId }) {
 
   const handleSendComment = () => {
     if (inputRef.current.value === "") {
-      return "can't be emptyu";
+      return "can't be empty";
     }
     const commentBody = { desc: inputRef.current.value };
     addCommentMutation.mutate(commentBody);
@@ -57,7 +55,7 @@ function Comments({ postId }) {
   };
 
   const { isPending, error, data } = useQuery({
-    queryKey: ["fetchComment"],
+    queryKey: ["fetchComment", postId],
     queryFn: () => fetchComment(postId),
   });
 

@@ -22,7 +22,7 @@ export const getPosts = async (req, res) => {
 export const getPost = async (req, res) => {
   const post = await postsModel
     .findOne({ slug: req.params.slug })
-    .populate("user", "username image");
+    .populate("user", "username image clerkId");
   res.status(200).send(post);
 };
 
@@ -76,7 +76,8 @@ export const deletePost = async (req, res) => {
   if (!deletePost) {
     return res.status(403).json("you can only delete your post");
   }
-  res.status(200).send("Post has been deleted");
+  console.log("Your post is deleted");
+  return res.status(200).send("Post has been deleted");
 };
 
 const imagekit = new ImageKit({
