@@ -15,7 +15,7 @@ export const saveUserPost = async (req, res) => {
   const clerkUserId = req.auth.userId;
   const postId = req.body.postId;
   const user = await userModel.findOne({ clerkId: clerkUserId });
-  const userSavedPosts = user.savedPosts;
+  const userSavedPosts = user?.savedPosts;
 
   if (!clerkUserId) {
     return res.status(401).json("Not authenticated");

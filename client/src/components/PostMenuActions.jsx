@@ -4,8 +4,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { data, useNavigate } from "react-router-dom";
 
-const getSaved = async (getToken) => {
+const getSaved = async (getToken, isLoaded) => {
+  console.log(isLoaded);
   const token = await getToken();
+  console.log(token);
   const res = await axios.get(
     `${import.meta.env.VITE_API_URL}/users/savedposts`,
     {
@@ -20,15 +22,18 @@ const getSaved = async (getToken) => {
 function PostMenuActions({ post }) {
   const queryClient = useQueryClient();
   const navigator = useNavigate();
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const { getToken } = useAuth();
+  const isAdmin = user?.publicMetadata?.role === "admin";
+  console.log(isAdmin);
   const {
     isPending,
     error,
     data: savedPosts,
   } = useQuery({
     queryKey: ["isSaved"],
-    queryFn: () => getSaved(getToken),
+    queryFn: () => getSaved(getToken, isLoaded),
+    enabled: isLoaded,
   });
   const isSaved = savedPosts?.includes(post._id);
 
@@ -50,6 +55,28 @@ function PostMenuActions({ post }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["isSaved"] });
+      navigator("/");
+    },
+  });
+
+  const featurePostOrUnFeaturePost = useMutation({
+    mutationFn: async (postId) => {
+      const token = await getToken();
+      return axios.patch(
+        `${import.meta.env.VITE_API_URL}/posts/${postId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    },
+    onError: (res) => {
+      toast.error("Post failed to be featured");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["postData"] });
     },
   });
 
@@ -87,12 +114,11 @@ function PostMenuActions({ post }) {
         <span>{isPending ? "Is pending..." : "Save this post"}</span>
       </div>
 
-      {user?.id === post.user?.clerkId && (
+      {(user?.id === post.user?.clerkId || isAdmin) && (
         <div
           className="flex items-center gap-2 py-2 text-sm cursor-pointer"
           onClick={() => {
             deletePostMutation.mutate(post._id);
-            navigator("/");
           }}
         >
           <svg
@@ -102,15 +128,15 @@ function PostMenuActions({ post }) {
             version="1.1"
             id="Capa_1"
             xmlns="http://www.w3.org/2000/svg"
-            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xmlnsXlink="http://www.w3.org/1999/xlink"
             viewBox="0 0 408.483 408.483"
-            xml:space="preserve"
+            xmlSpace="preserve"
           >
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
             <g
               id="SVGRepo_tracerCarrier"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             ></g>
             <g id="SVGRepo_iconCarrier">
               {" "}
@@ -125,6 +151,31 @@ function PostMenuActions({ post }) {
             </g>
           </svg>
           <span>Delete this post</span>
+        </div>
+      )}
+
+      {(user?.id === post.user?.clerkId || isAdmin) && (
+        <div
+          className="flex items-center gap-2 py-2 text-sm cursor-pointer"
+          onClick={() => {
+            featurePostOrUnFeaturePost.mutate(post._id);
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 48 48"
+            width="20px"
+            height="20px"
+          >
+            <path
+              d="M24 2L29.39 16.26L44 18.18L33 29.24L35.82 44L24 37L12.18 44L15 29.24L4 18.18L18.61 16.26L24 2Z"
+              stroke="black"
+              fill={post.isFeatured ? "black" : "none"}
+              strokeWidth="2"
+            />
+          </svg>
+
+          <span>Feature This Post</span>
         </div>
       )}
     </div>

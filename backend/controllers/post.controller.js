@@ -61,18 +61,62 @@ export const createPost = async (req, res) => {
 
 export const deletePost = async (req, res) => {
   const clerkUserId = req.auth.userId;
+  const role = req.auth?.sessionClaims?.metadata?.role;
 
   if (!clerkUserId) {
     return res.status(401).json("Not authenticated");
   }
 
   const user = await userModel.findOne({ clerkId: clerkUserId });
-  console.log(user);
 
-  const post = await postsModel.findByIdAndDelete({
+  if (role === "admin") {
+    await postsModel.findByIdAndDelete(req.params.id);
+    return res.status(200).send("Post has been deleted");
+  }
+
+  const deletePost = await postsModel.findOneAndDelete({
     _id: req.params.id,
     user: user._id,
   });
+
+  if (!deletePost) {
+    return res.status(403).json("you can only delete your post");
+  }
+  console.log("Your post is deleted");
+  return res.status(200).send("Post has been deleted");
+};
+
+export const featurePost = async (req, res) => {
+  const clerkUserId = req.auth.userId;
+  console.log(req);
+  const role = req.auth.sessionClaims?.metadata?.role;
+
+  if (!clerkUserId) {
+    return res.status(401).json("Not authenticated");
+  }
+
+  const user = await userModel.findOne({ clerkId: clerkUserId });
+
+  const post = await postsModel.findById(req.params.id);
+
+  if (!post) {
+    return res.status(404).send("Post not found");
+  }
+
+  const isFeatured = post.isFeatured;
+
+  if (role === "admin") {
+    const updatedPost = await postsModel.findByIdAndUpdate(req.params.id, {
+      isFeatured: !isFeatured,
+    });
+    return res.status(200).send("Post has been deleted");
+  }
+
+  const deletePost = await postsModel.findOneAndDelete({
+    _id: req.params.id,
+    user: user._id,
+  });
+
   if (!deletePost) {
     return res.status(403).json("you can only delete your post");
   }

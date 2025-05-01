@@ -8,7 +8,10 @@ import { toast } from "react-toastify";
 
 function SingleComment({ commentData, userId }) {
   const queryClient = useQueryClient();
+  const { user } = useUser();
   const { getToken } = useAuth();
+  const isAdmin = user?.publicMetadata?.role === "admin";
+
   const deleteCommentMuation = useMutation({
     mutationFn: async (commentId) => {
       const token = await getToken({ forceRefresh: true });
@@ -50,7 +53,7 @@ function SingleComment({ commentData, userId }) {
         <span className="text-sm text-gray-500">
           {format(commentData.createdAt)}
         </span>
-        {userId === commentData.user?.clerkId ? (
+        {userId === commentData.user?.clerkId || isAdmin ? (
           <div
             className="flex ml-auto text-[14px] cursor-pointer text-white font-bold justify-center rounded-full px-2 py-2 items-center bg-red-500"
             onClick={() => deleteCommentMuation.mutate(commentData._id)}
