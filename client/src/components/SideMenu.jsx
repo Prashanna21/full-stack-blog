@@ -1,8 +1,24 @@
 import React from "react";
 import Search from "./Search";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 function SideMenu() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const handleChange = (e) => {
+    setSearchParams({
+      ...Object.fromEntries(searchParams),
+      sort: e.target.value,
+    });
+  };
+
+  const handleCategoryChange = (value) => {
+    setSearchParams({
+      ...Object.fromEntries(searchParams),
+      cat: value,
+    });
+  };
+
   return (
     <div className="sticky px-4 h-max  top-8">
       <h1 className="mb-4 text-sm font-medium">Search</h1>
@@ -11,6 +27,7 @@ function SideMenu() {
       <div className="flex flex-col gap-2 text-sm">
         <label className="flex items-center gap-2">
           <input
+            onChange={handleChange}
             type="radio"
             name="sort"
             value="newest"
@@ -21,9 +38,10 @@ function SideMenu() {
 
         <label className="flex items-center gap-2">
           <input
+            onChange={handleChange}
             type="radio"
             name="sort"
-            value="most-popular"
+            value="popular"
             className="appearance-none bg-transparent w-4 h-4 border-[1.5px] border-blue-800 checked:bg-blue-500  cursor-pointer"
           />
           Most Popular
@@ -31,6 +49,7 @@ function SideMenu() {
 
         <label className="flex items-center gap-2">
           <input
+            onChange={handleChange}
             type="radio"
             name="sort"
             value="trending"
@@ -41,6 +60,7 @@ function SideMenu() {
 
         <label className="flex items-center gap-2">
           <input
+            onChange={handleChange}
             type="radio"
             name="sort"
             value="oldest"
@@ -55,19 +75,39 @@ function SideMenu() {
         <Link className="underline" to="/posts">
           All
         </Link>
-        <Link className="underline" to="/posts?cat=web-design">
+        <Link
+          value="web-design"
+          className="underline cursor-pointer"
+          onClick={() => handleCategoryChange("web-design")}
+        >
           Web Design
         </Link>
-        <Link className="underline" to="/posts?cat=developmet">
+        <Link
+          value="development"
+          className="underline cursor-pointer"
+          onClick={() => handleCategoryChange("development")}
+        >
           Development
         </Link>
-        <Link className="underline" to="/posts?cat=databases">
+        <Link
+          value="databases"
+          className="underline cursor-pointer"
+          onClick={() => handleCategoryChange("databases")}
+        >
           Databases
         </Link>
-        <Link className="underline" to="/posts?cat=search-engine">
+        <Link
+          value="search-engine"
+          className="underline cursor-pointer"
+          onClick={() => handleCategoryChange("search-engine")}
+        >
           Search Engine
         </Link>
-        <Link className="underline" to="/posts?cat=marketing">
+        <Link
+          value="marketing"
+          className="underline cursor-pointer"
+          onClick={() => handleCategoryChange("marketing")}
+        >
           Marketing
         </Link>
       </div>

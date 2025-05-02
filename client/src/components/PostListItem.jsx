@@ -19,7 +19,10 @@ function PostListItem({ post }) {
 
         <div className="flex items-center gap-2 text-gray-400">
           <span>Written By: </span>
-          <Link className="text-blue-800">
+          <Link
+            to={`/posts?author=${post.user.username}`}
+            className="text-blue-800"
+          >
             {post.user?.username ? post.user.username : "Unknown"}
           </Link>
           <span>on </span>

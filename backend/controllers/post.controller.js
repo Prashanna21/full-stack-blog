@@ -5,17 +5,69 @@ import ImageKit from "imagekit";
 
 export const getPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 2;
+  const limit = parseInt(req.query.limit) || 10;
+  let query = {};
+  const cat = req.query.cat;
+  const author = req.query.author;
+  const searchQuery = req.query.search;
+  const sortQuery = req.query.sort;
+  const featured = req.query.feature;
+
+  if (cat) {
+    query.category = cat;
+  }
+
+  if (searchQuery) {
+    query.title = { $regex: searchQuery, $options: "i" }; //search for that perticular word for search 'i' means case insesistive
+  }
+
+  if (author) {
+    const user = await userModel.findOne({ username: author }).select("_id"); //select gives particualry id only in object like {_id : dasljfkla}
+
+    if (!user) {
+      return res.status(404).send("No Post Found");
+    }
+
+    query.user = user._id;
+  }
+
+  let sortObj = { createdAt: -1 };
+
+  if (sortQuery) {
+    switch (sortQuery) {
+      case "newest":
+        sortObj = { createdAt: -1 };
+        break;
+      case "oldest":
+        sortObj = { createdAt: 1 };
+        break;
+      case "popular":
+        sortObj = { visit: -1 };
+        break;
+      case "trending":
+        sortObj = { visit: -1 };
+        query.createdAt = {
+          $gte: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000), // to get the trending post in 7 days
+        };
+        break;
+    }
+  }
+
+  console.log(query);
 
   const posts = await postsModel
-    .find()
+    .find(query)
     .populate("user", "username")
     .limit(limit)
+    .sort(sortObj)
     .skip((page - 1) * limit);
   const totalPosts = await postsModel.countDocuments();
   const hasMore = page * limit < totalPosts;
-  console.log("HASMORE", hasMore);
-  console.log(page);
+
+  if (posts.length === 0) {
+    return res.status(404).send("No post found");
+  }
+
   res.status(200).send({ posts, hasMore });
 };
 
@@ -24,6 +76,7 @@ export const getPost = async (req, res) => {
     .findOne({ slug: req.params.slug })
     .populate("user", "username image clerkId");
   res.status(200).send(post);
+  console.log(post.visits);
 };
 
 export const createPost = async (req, res) => {

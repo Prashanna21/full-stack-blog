@@ -6,15 +6,15 @@ function Postlistpage() {
   const [open, setOpen] = useState(false);
   return (
     <div>
-      <h1 className="mb-8 text-2xl">Development Blog</h1>
+      <h1 className="mb-8 text-2xl">All Posts</h1>
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="md:hidden bg-blue-500 text-sm text-white px-4 py-2 rounded-2xl my-4"
       >
         {open ? "Close" : "Filter Or Search"}
       </button>
-      <div className="flex flex-col-reverse md:flex-row gap-8">
-        <div className="">
+      <div className="flex flex-col-reverse md:flex-row md:justify-between">
+        <div className="w-full">
           <PostList />
         </div>
 
