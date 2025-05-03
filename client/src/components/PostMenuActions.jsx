@@ -55,7 +55,6 @@ function PostMenuActions({ post }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["isSaved"] });
-      navigator("/");
     },
   });
 

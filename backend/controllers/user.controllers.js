@@ -8,7 +8,7 @@ export const getUserSavedPosts = async (req, res) => {
   }
 
   const user = await userModel.findOne({ clerkId: clerkUserId });
-  return res.status(200).send(user.savedPosts);
+  return res.status(200).send(user?.savedPosts);
 };
 
 export const saveUserPost = async (req, res) => {
@@ -21,14 +21,14 @@ export const saveUserPost = async (req, res) => {
     return res.status(401).json("Not authenticated");
   }
 
-  const isSaved = userSavedPosts.includes(postId);
+  const isSaved = userSavedPosts?.includes(postId);
 
   if (isSaved) {
-    await userModel.findByIdAndUpdate(user._id, {
+    await userModel.findByIdAndUpdate(user?._id, {
       $pull: { savedPosts: postId },
     });
   } else {
-    await userModel.findByIdAndUpdate(user._id, {
+    await userModel.findByIdAndUpdate(user?._id, {
       $push: { savedPosts: postId },
     });
   }

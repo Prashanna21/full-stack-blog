@@ -11,7 +11,7 @@ export const getPosts = async (req, res) => {
   const author = req.query.author;
   const searchQuery = req.query.search;
   const sortQuery = req.query.sort;
-  const featured = req.query.feature;
+  const featured = req.query.featured;
 
   if (cat) {
     query.category = cat;
@@ -29,6 +29,10 @@ export const getPosts = async (req, res) => {
     }
 
     query.user = user._id;
+  }
+
+  if (featured) {
+    query.isFeatured = true;
   }
 
   let sortObj = { createdAt: -1 };
